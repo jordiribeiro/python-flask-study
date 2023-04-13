@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 
 class Jogo:
     def  __init__(self, nome, categoria, console):
@@ -12,10 +12,12 @@ jogo2 = Jogo('Skyrim','RPG','PS4')
 lista = [jogo0,jogo1,jogo2]
 
 app = Flask(__name__)
+@app.route('/')
+def comeco():
+    return redirect('/inicio')
 
 @app.route('/inicio')
 def ola():
-
     return render_template('lista.html',titulo='Jogos',jogos=lista)
 
 @app.route('/novo')
@@ -29,6 +31,6 @@ def criar():
     console = request.form['console']
     jogo = Jogo(nome,categoria,console)
     lista.append(jogo)
-    return render_template('lista.html',titulo='Jogos',jogos=lista)
+    return redirect('/')
 
 app.run()
