@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session, flash
+from flask import Flask, render_template, request, redirect, session, flash, url_for
 
 class Jogo:
     def  __init__(self, nome, categoria, console):
@@ -24,7 +24,7 @@ def ola():
 @app.route('/novo')
 def novo():
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
-        return redirect('/login')
+        return redirect(url_for('login',proxima=url_for('novo')))
     else:
         return render_template('novo.html', titulo='Novo Jogo')
 
@@ -35,26 +35,28 @@ def criar():
     console = request.form['console']
     jogo = Jogo(nome,categoria,console)
     lista.append(jogo)
-    return redirect('/')
+    return redirect(url_for('comeco'))
 
 @app.route('/login')
 def login():
-    return render_template('login.html')
+    proxima = request.args.get('proxima')
+    return render_template('login.html',proxima=proxima)
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
     if 'alohomora' == request.form['senha']:
         session['usuario_logado']=request.form['usuario']
         flash(session['usuario_logado'] + ' Usuário Logado com Sucesso!')
-        return redirect('/')
+        proxima_pagina = request.form['proxima']
+        return redirect(proxima_pagina)
     else:
         flash("Usuário não logado")
-        return redirect('/login')
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
     session['usuario_logado'] = None
     flash("Logout realizado com sucesso","alert")
-    return redirect('/')
+    return redirect(url_for('comeco'))
 
 app.run(debug=True)
